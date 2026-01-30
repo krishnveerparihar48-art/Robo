@@ -1,0 +1,30 @@
+websites:
+  sarkari_result:
+    url: "https://www.sarkariresult.com/"
+    selectors:
+      job_list: ".post a"
+      title: "h2"
+      link: "a"
+    priority: 1
+    delay: 5
+    max_retries: 3
+
+  free_job_alert:
+    url: "https://www.freejobalert.com/"
+    selectors:
+      job_list: ".post.hentry"
+      title: "h2.entry-title a"
+      link: "a"
+    priority: 2
+    delay: 5
+    max_retries: 3
+
+  employment_news:
+    url: "https://employmentnews.gov.in/"
+    selectors:
+      job_list: "table.Grid tr"
+      title: "td:nth-child(2)"
+      link: "a"
+    priority: 3
+    delay: 5
+    max_retries: 3

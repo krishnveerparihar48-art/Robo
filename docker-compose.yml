@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: government_job_bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHANNEL_ID=${TELEGRAM_CHANNEL_ID}
+      - DATABASE_URL=sqlite:///jobs.db
+      - SENTRY_DSN=${SENTRY_DSN}
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+      - ./jobs.db:/app/jobs.db
+    networks:
+      - bot_network
+
+networks:
+  bot_network:
+    driver: bridge

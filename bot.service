@@ -1,0 +1,14 @@
+[Unit]
+Description=Government Job Updates Telegram Bot
+After=network.target
+
+[Service]
+User=engine
+WorkingDirectory=/home/engine/project
+Environment="PATH=/home/engine/project/venv/bin"
+ExecStart=/home/engine/project/venv/bin/python /home/engine/project/bot/main.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
