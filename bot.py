@@ -123,6 +123,60 @@ async def websites_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         text += f"{status} [{site['name']}]({site['url']})\n"
     await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
 
+async def state_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Usage: /state [state_name]\nExample: /state UP")
+        return
+
+    query_state = context.args[0].lower()
+    found = False
+    text = "🏛 *State Job Portals:*\n\n"
+    
+    for state, url in config.STATE_WEBSITES.items():
+        if query_state in state.lower():
+            text += f"🔹 *{state}:* [Visit Portal]({url})\n"
+            found = True
+            
+    if not found:
+        text = "❌ State not found in our database."
+        
+    await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+
+async def category_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not database.is_user_verified(update.effective_user.id):
+        await request_verification(update)
+        return
+
+    if not context.args:
+        cats = ", ".join(config.JOB_CATEGORIES)
+        await update.message.reply_text(f"Usage: /category [type]\nAvailable: {cats}")
+        return
+
+    query_cat = context.args[0].lower()
+    jobs_data = database.load_posted_jobs()
+    found_jobs = []
+    
+    for job in jobs_data.values():
+        title = job.get('title', '').lower()
+        if query_cat in title:
+            found_jobs.append(job)
+            
+    if not found_jobs:
+        await update.message.reply_text(f"No recent jobs found for category: {query_cat}")
+        return
+        
+    # Sort by date and take top 5
+    found_jobs.sort(key=lambda x: x.get('scraped_at', ''), reverse=True)
+    
+    await update.message.reply_text(f"🔍 Found {len(found_jobs)} jobs for '{query_cat}':")
+    
+    for job in found_jobs[:5]:
+        text = formatter.format_complete_job(job)
+        keyboard = [[InlineKeyboardButton("🚀 APPLY NOW", url=job['link'])]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN, reply_markup=reply_markup)
+
+
 # --- Part F: Button Handlers ---
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -269,12 +323,15 @@ def main():
     application.add_handler(CommandHandler("verify", request_verification))
     application.add_handler(CommandHandler("latest", latest_jobs))
     application.add_handler(CommandHandler("websites", websites_command))
+    application.add_handler(CommandHandler("state", state_command))
+    application.add_handler(CommandHandler("category", category_command))
     application.add_handler(CommandHandler("help", help_command))
     
     # Admin Handlers
     application.add_handler(CommandHandler("admin_stats", admin.admin_stats))
     application.add_handler(CommandHandler("admin_users", admin.admin_users))
     application.add_handler(CommandHandler("admin_test", admin.admin_test))
+    application.add_handler(CommandHandler("admin_post", admin.admin_post))
     
     # Callbacks
     application.add_handler(CallbackQueryHandler(button_handler))

@@ -6,12 +6,15 @@ import logging
 from datetime import datetime
 import re
 
-# Configure logging
-logging.basicConfig(
-    filename='logs/scraper.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Configure logging only if run as main
+if __name__ == "__main__":
+    logging.basicConfig(
+        filename='logs/scraper.log',
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+
+logger = logging.getLogger(__name__)
 
 USER_AGENTS = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -32,7 +35,7 @@ def get_soup(url):
             response.raise_for_status()
             return BeautifulSoup(response.content, 'html.parser')
         except requests.RequestException as e:
-            logging.error(f"Error fetching {url}: {e}")
+            logger.error(f"Error fetching {url}: {e}")
             if i < retries - 1:
                 time.sleep(2 ** i)  # Exponential backoff
             else:
@@ -176,7 +179,7 @@ def scrape_sarkari_result():
                     count += 1
                 time.sleep(2) # Delay
             except Exception as e:
-                logging.error(f"Error parsing details for {href}: {e}")
+                logger.error(f"Error parsing details for {href}: {e}")
                 
     return jobs
 
@@ -196,11 +199,11 @@ def get_all_jobs():
     all_jobs = []
     
     try:
-        logging.info("Starting Sarkari Result scrape")
+        logger.info("Starting Sarkari Result scrape")
         sr_jobs = scrape_sarkari_result()
         all_jobs.extend(sr_jobs)
     except Exception as e:
-        logging.error(f"Sarkari Result scrape failed: {e}")
+        logger.error(f"Sarkari Result scrape failed: {e}")
 
     # Add other scrapers...
     
