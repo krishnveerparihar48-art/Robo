@@ -1,6 +1,9 @@
 # Dependencies
 node_modules/
 vendor/
+__pycache__/
+*.py[cod]
+*$py.class
 
 # Environment variables
 .env
@@ -30,7 +33,22 @@ Thumbs.db
 *.log
 logs/
 
+# Database (generated at runtime)
+database/
+database/*.json
+
+# Backups (generated at runtime)
+backups/
+backup_*.json
+
 # Temporary files
 tmp/
 temp/
 *.tmp
+
+# Python
+.pytest_cache/
+.coverage
+htmlcov/
+venv/
+env/
